@@ -1,0 +1,92 @@
+—-------------------------------------TWEENED ANIMATION—-----------------------------------
+.KT
+class MainActivity : AppCompatActivity() {
+   override fun onCreate(savedInstanceState: Bundle?) {
+       super.onCreate(savedInstanceState)
+       setContentView(R.layout.activity_main)
+
+       var iv:ImageView=findViewById(R.id.imageView)
+       var spin:Button=findViewById(R.id.button13)
+       spin.setOnClickListener{
+           var an= AnimationUtils.loadAnimation(this,R.anim.spin)
+           iv.startAnimation(an)
+       }
+
+       var zoom:Button=findViewById(R.id.button14)
+       zoom.setOnClickListener{
+           var an= AnimationUtils.loadAnimation(this,R.anim.zoom)
+           iv.startAnimation(an)
+       }
+
+       var move:Button=findViewById(R.id.button15)
+       move.setOnClickListener{
+           var an= AnimationUtils.loadAnimation(this,R.anim.move)
+           iv.startAnimation(an)
+       }
+
+       var blink:Button=findViewById(R.id.button16)
+       blink.setOnClickListener{
+           var an= AnimationUtils.loadAnimation(this,R.anim.blink)
+           iv.startAnimation(an)
+       }
+   }
+}
+
+Anim-1.blink.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+   <alpha
+       android:duration="3000"
+       android:fromAlpha="0.1"
+       android:toAlpha="1"
+       android:repeatMode="reverse">
+   </alpha>
+</set>
+
+2.MOVE.XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+   <translate
+       android:duration="3000"
+       android:fromXDelta="-1400">
+   </translate>
+
+   <translate
+       android:duration="3000"
+       android:toXDelta="1300">
+   </translate>
+</set>
+
+3.SPIN.XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+   <rotate android:fromDegrees="0"
+       android:toDegrees="360"
+       android:duration="3000"
+       android:pivotX="50%"
+       android:pivotY="50%">
+   </rotate>
+</set>
+
+4.ZOOM=.XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+   <scale
+       android:duration="3000"
+       android:pivotY="50%"
+       android:pivotX="50%"
+       android:fromXScale="1.0"
+       android:toXScale="2.0"
+       android:fromYScale="1.0"
+       android:toYScale="2.0">
+   </scale>
+</set>
+
+
+
+
+

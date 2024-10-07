@@ -1,0 +1,272 @@
+—-----------------------------------CONTACTAPP—-------------------------------------------
+.KT
+class MainActivity : AppCompatActivity() {
+   companion object {
+       private const val REQUEST_CODE_READ_CONTACTS = 111
+       private const val REQUEST_CODE_CALL_PHONE = 112
+       private const val REQUEST_CODE_ADD_CONTACT = 113
+   }
+
+   private val cols = arrayOf(
+       ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+       ContactsContract.CommonDataKinds.Phone.NUMBER,
+       ContactsContract.CommonDataKinds.Phone._ID
+   )
+
+   private lateinit var listView: ListView
+   private lateinit var searchView: SearchView
+   private lateinit var adapter: SimpleCursorAdapter
+
+   override fun onCreate(savedInstanceState: Bundle?) {
+       super.onCreate(savedInstanceState)
+       setContentView(R.layout.activity_main)
+       listView = findViewById(R.id.listview)
+       searchView = findViewById(R.id.search_view)
+       val btnAdd: FloatingActionButton = findViewById(R.id.btn_add)
+       btnAdd.setOnClickListener {
+           val intent = Intent(Intent.ACTION_INSERT)
+           intent.type = ContactsContract.Contacts.CONTENT_TYPE
+           startActivity(intent)
+       }
+
+       searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+           override fun onQueryTextSubmit(query: String?): Boolean {
+               query?.let { filterContacts(it) }
+               return true
+           }
+           override fun onQueryTextChange(newText: String?): Boolean {
+               newText?.let { filterContacts(it) }
+               return true
+           }
+       })
+
+       // Register context menu for ListView
+       registerForContextMenu(listView)
+
+       if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+           ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CODE_READ_CONTACTS)
+       } else {
+           setupContactsList()
+       }
+   }
+
+   override fun onResume() {
+       super.onResume()
+       // Refresh contacts list when the activity resumes
+       setupContactsList()
+   }
+
+   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+       super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+       if (requestCode == REQUEST_CODE_READ_CONTACTS && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+           setupContactsList()
+       } else if (requestCode == REQUEST_CODE_CALL_PHONE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+           // Permission for CALL_PHONE granted
+       }
+   }
+
+   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+       super.onActivityResult(requestCode, resultCode, data)
+       if (requestCode == REQUEST_CODE_ADD_CONTACT) {
+           setupContactsList()
+       }
+   }
+
+   private fun setupContactsList() {
+       val rs = contentResolver.query(
+           ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+           cols,
+           null,
+           null,
+           ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+       )
+
+       adapter = SimpleCursorAdapter(
+           this,
+           android.R.layout.simple_list_item_2,
+           rs,
+           cols,
+           intArrayOf(android.R.id.text1, android.R.id.text2),
+           0
+       )
+
+       listView.adapter = adapter
+
+       // Handle item clicks
+       listView.setOnItemClickListener { _, _, position, _ ->
+           val cursor = listView.adapter.getItem(position) as Cursor
+           val phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+           if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+               ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), REQUEST_CODE_CALL_PHONE)
+           } else {
+               makeCall(phoneNumber)
+           }
+       }
+   }
+
+   private fun filterContacts(query: String) {
+       val selection = "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE ?"
+       val selectionArgs = arrayOf("%$query%")
+
+       val rs = contentResolver.query(
+           ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+           cols,
+           selection,
+           selectionArgs,
+           ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+       )
+
+       adapter.changeCursor(rs)
+   }
+
+   private fun makeCall(phoneNumber: String) {
+       val callIntent = Intent(Intent.ACTION_CALL)
+       callIntent.data = Uri.parse("tel:$phoneNumber")
+       startActivity(callIntent)
+   }
+
+   // Context menu methods
+   override fun onCreateContextMenu(
+       menu: ContextMenu?,
+       v: View?,
+       menuInfo: ContextMenu.ContextMenuInfo?
+   ) {
+       super.onCreateContextMenu(menu, v, menuInfo)
+       menuInflater.inflate(R.menu.contact_context_menu, menu)
+   }
+
+   @SuppressLint("QueryPermissionsNeeded")
+   override fun onContextItemSelected(item: MenuItem): Boolean {
+       val info = item.menuInfo as AdapterView.AdapterContextMenuInfo
+       val cursor = listView.adapter.getItem(info.position) as Cursor
+       val phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+       val contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+
+       return when (item.itemId) {
+           R.id.action_call -> {
+               if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                   makeCall(phoneNumber)
+               } else {
+                   ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), REQUEST_CODE_CALL_PHONE)
+               }
+               true
+           }
+           R.id.action_message -> {
+               val smsIntent = Intent(Intent.ACTION_SENDTO).apply {
+                   data = Uri.parse("smsto:$phoneNumber")
+                   putExtra("sms_body", "Hello $contactName")
+               }
+               if (smsIntent.resolveActivity(packageManager) != null) {
+                   startActivity(smsIntent)
+               }
+               true
+           }
+           R.id.action_whatsapp -> {
+               try {
+                   // Format phone number to international format
+                   val formattedNumber = phoneNumber.replace(" ", "").replace("-", "")
+                   val whatsappUri = Uri.parse("https://api.whatsapp.com/send?phone=$formattedNumber")
+                   val whatsappIntent = Intent(Intent.ACTION_VIEW, whatsappUri).apply {
+                       setPackage("com.whatsapp")  // Ensure that the intent is for WhatsApp
+                   }
+                   if (whatsappIntent.resolveActivity(packageManager) != null) {
+                       startActivity(whatsappIntent)
+                   } else {
+                       // Handle case where WhatsApp is not installed
+                       Toast.makeText(this, "WhatsApp not installed", Toast.LENGTH_SHORT).show()
+
+                       // Redirect to Play Store to install WhatsApp
+//                        val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.whatsapp"))
+//                        startActivity(playStoreIntent)
+                   }
+               } catch (e: Exception) {
+                   e.printStackTrace()
+                   Toast.makeText(this, "Error opening WhatsApp", Toast.LENGTH_SHORT).show()
+               }
+               true
+           }
+           else -> super.onContextItemSelected(item)
+       }
+   }
+}
+
+ADDCONTACACTIVITY.KT:=
+class AddContactActivity : AppCompatActivity() {
+
+   override fun onCreate(savedInstanceState: Bundle?) {
+       super.onCreate(savedInstanceState)
+       setContentView(R.layout.activity_add_contact)
+
+       val addButton: Button = findViewById(R.id.add_contact_button)
+
+       addButton.setOnClickListener {
+           // Create an intent to insert a new contact
+           val intent = Intent(Intent.ACTION_INSERT)
+           intent.type = ContactsContract.Contacts.CONTENT_TYPE
+
+           // Optional: Add initial data to the contact
+           intent.putExtra(ContactsContract.Intents.Insert.NAME, "New Contact")
+           intent.putExtra(ContactsContract.Intents.Insert.PHONE, "1234567890")
+
+           startActivity(intent)
+       }
+   }
+}
+
+.XML
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   xmlns:tools="http://schemas.android.com/tools"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   tools:context=".MainActivity">
+
+   <SearchView
+       android:id="@+id/search_view"
+       android:layout_width="0dp"
+       android:layout_height="wrap_content"
+       android:layout_margin="16dp"
+       app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"/>
+
+   <ListView
+       android:id="@+id/listview"
+       android:layout_width="0dp"
+       android:layout_height="0dp"
+       app:layout_constraintTop_toBottomOf="@id/search_view"
+       app:layout_constraintBottom_toBottomOf="parent"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"/>
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/btn_add"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_margin="16dp"
+       android:src="@android:drawable/ic_menu_add"
+       android:contentDescription="Add Content"
+       app:layout_constraintBottom_toBottomOf="parent"
+       app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+ADD_CONTACT.XML:-=
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:orientation="vertical"
+   android:padding="16dp">
+
+   <Button
+       android:id="@+id/add_contact_button"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="Add Contact" />
+
+</LinearLayout>
+

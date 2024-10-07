@@ -1,0 +1,246 @@
+—------------------------------------Relative Layout—-------------------------------------------------
+
+.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   xmlns:tools="http://schemas.android.com/tools"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   tools:context=".MainActivity">
+
+
+   <Button
+       android:id="@+id/button"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="297dp"
+       android:layout_marginBottom="625dp"
+       android:text="Button" />
+
+   <ToggleButton
+       android:id="@+id/toggleButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="202dp"
+       android:layout_marginBottom="618dp"
+       android:text="OFF" />
+
+   <ImageView
+       android:id="@+id/imageView"
+       android:layout_width="200dp"
+       android:layout_height="200dp"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="216dp"
+       android:layout_marginBottom="378dp"
+       app:srcCompat="@drawable/off" />
+
+   <ImageButton
+       android:id="@+id/imageButton2"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="8dp"
+       android:layout_marginBottom="509dp"
+       android:scaleType="matrix"
+       app:srcCompat="@drawable/androidimg" />
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/floatingActionButton"
+       android:layout_width="100dp"
+       android:layout_height="100dp"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="18dp"
+       android:layout_marginBottom="17dp"
+       android:clickable="true"
+       app:srcCompat="@android:drawable/btn_star_big_on" />
+
+   <CheckBox
+       android:id="@+id/checkBox"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="306dp"
+       android:layout_marginBottom="257dp"
+       android:text="JAVA" />
+
+   <CheckBox
+       android:id="@+id/checkBox2"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="290dp"
+       android:layout_marginBottom="201dp"
+       android:text="Android" />
+
+   <CheckBox
+       android:id="@+id/checkBox3"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="303dp"
+       android:layout_marginBottom="142dp"
+       android:text="Kotlin" />
+
+   <TextView
+       android:id="@+id/textView"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="278dp"
+       android:layout_marginBottom="67dp"
+       android:text="TextView"
+       android:textSize="15dp" />
+
+   <RadioGroup
+       android:id="@+id/radiogroup"
+       android:layout_width="180dp"
+       android:layout_height="185dp"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="14dp"
+       android:layout_marginBottom="103dp">
+
+
+       <RadioButton
+           android:id="@+id/radioButton4"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="MCA" />
+
+       <RadioButton
+           android:id="@+id/radioButton5"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="BCA" />
+
+       <RadioButton
+           android:id="@+id/radioButton6"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="MSCIT" />
+
+   </RadioGroup>
+
+   <TextView
+       android:id="@+id/textView2"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="85dp"
+       android:layout_marginBottom="47dp"
+       android:text="" />
+
+   <Button
+       android:id="@+id/button2"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="40dp"
+       android:layout_marginBottom="307dp"
+       android:text="RESET" />
+
+   <EditText
+       android:id="@+id/editTextPhone"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginEnd="12dp"
+       android:layout_marginBottom="403dp"
+       android:ems="10"
+       android:hint="Enter number"
+       android:inputType="phone" />
+
+
+</RelativeLayout>
+.kt
+package com.example.relative_layout
+
+
+
+class MainActivity : AppCompatActivity() {
+   override fun onCreate(savedInstanceState: Bundle?) {
+       super.onCreate(savedInstanceState)
+       setContentView(R.layout.activity_main)
+       var btn:Button=findViewById(R.id.button)
+       var imgbtn:ImageButton=findViewById(R.id.imageButton2)
+       var tglbtn:ToggleButton=findViewById(R.id.toggleButton)
+       var imgView:ImageView=findViewById(R.id.imageView)
+
+
+       btn.setOnClickListener{
+           Toast.makeText(applicationContext,"button Clicked",Toast.LENGTH_LONG).show()
+       }
+       imgbtn.setOnClickListener{
+           Toast.makeText(applicationContext," image button Clicked",Toast.LENGTH_LONG).show()
+       }
+
+       tglbtn.setOnClickListener{
+          if (tglbtn.text.equals("OFF")){
+              imgView.setImageResource(R.drawable.off)
+          }
+           else{
+              imgView.setImageResource(R.drawable.on)
+          }
+       }
+       var ch1:CheckBox=findViewById(R.id.checkBox)
+       var ch2:CheckBox=findViewById(R.id.checkBox2)
+       var ch3:CheckBox=findViewById(R.id.checkBox3)
+       var textv1:TextView=findViewById(R.id.textView)
+
+       var rg:RadioGroup=findViewById(R.id.radiogroup)
+       var rset:Button=findViewById(R.id.button2)
+       var tv1:TextView=findViewById(R.id.textView2)
+
+       var str:String
+
+       ch1.setOnClickListener {
+           str="JAVA :${ch1.isChecked}\n ANDROID:${ch2.isChecked}\n KOTLIN:${ch3.isChecked}"
+           textv1.setText(str)
+       }
+       ch2.setOnClickListener {
+           str="JAVA :${ch1.isChecked}\n ANDROID:${ch2.isChecked}\n KOTLIN:${ch3.isChecked}"
+           textv1.setText(str)
+       }
+       ch3.setOnClickListener {
+           str="JAVA :${ch1.isChecked}\n ANDROID:${ch2.isChecked}\n KOTLIN:${ch3.isChecked}"
+           textv1.setText(str)
+       }
+       rg.setOnCheckedChangeListener { radioGroup, i ->
+           var rb=findViewById<RadioButton>(i)
+           if(rb!=null){
+               tv1.setText(rb.text)
+           }
+
+       }
+       rset.setOnClickListener {
+           rg.clearCheck()
+           tv1.setText("select option")
+       }
+       var num1:EditText=findViewById(R.id.editTextPhone)
+       var flotview:FloatingActionButton=findViewById(R.id.floatingActionButton)
+
+   }
+
+
+}
+
+
+
+
+
+

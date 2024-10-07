@@ -1,0 +1,77 @@
+—---------------------------------------Date and Time:-----------------------------------------------
+.xml
+	<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   xmlns:tools="http://schemas.android.com/tools"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:orientation="vertical"
+   tools:context=".MainActivity">
+
+
+   <EditText
+       android:id="@+id/e1"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:ems="10"
+       android:hint="Select Date"
+       android:inputType="date" />
+
+   <EditText
+       android:id="@+id/e2"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:ems="10"
+       android:hint="select time"
+       android:inputType="time" />
+
+</LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+.kt
+package com.example.first
+
+
+
+class MainActivity : AppCompatActivity() {
+   override fun onCreate(savedInstanceState: Bundle?) {
+       super.onCreate(savedInstanceState)
+       setContentView(R.layout.activity_main)
+
+       var etdate : EditText=findViewById(R.id.e1)
+       var c=Calendar.getInstance()
+       var timepic:EditText=findViewById(R.id.e2)
+
+       etdate.setOnClickListener {
+           DatePickerDialog(this,DatePickerDialog.OnDateSetListener { datePicker, i, i2, i3 ->
+               etdate.setText("$i/${i2+1}/$i3")
+           },c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DAY_OF_MONTH)).show()
+       }
+
+       timepic.setOnClickListener {
+           TimePickerDialog(this,TimePickerDialog.OnTimeSetListener { timePicker, i, i2->
+             timepic.setText("$i:$i2")
+           },c.get(Calendar.HOUR),c.get(Calendar.MINUTE),false).show()
+       }
+   }
+}
+
+
+
+
+
+
+
+

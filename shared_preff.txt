@@ -1,0 +1,82 @@
+—----------------------------------SharedPrefernce—------------------------------------------
+.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   xmlns:tools="http://schemas.android.com/tools"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:padding="20dp"
+   android:orientation="vertical"
+   tools:context=".MainActivity">
+
+   <TextView
+       android:id="@+id/text_view"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:text="Shared Prefernce"
+       android:textSize="30dp"
+       android:gravity="center/>
+
+   <EditText
+       android:id="@+id/user_nm"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginTop="20dp"
+       android:hint="Enter UserName"/>
+
+   <EditText
+       android:id="@+id/user_ps"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginTop="20dp"
+       android:hint="Enter Password"
+       android:inputType="numberPassword"/>
+
+   <Button
+       android:id="@+id/save_btn"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginTop="20dp"
+       android:text="Save"
+       android:textSize="30dp"/>
+
+   <Button
+       android:id="@+id/dis_btn"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:text="Display"
+       android:textSize="30dp"/>
+</LinearLayout>
+
+.kt
+package com.example.sharedprefernce
+
+class MainActivity : AppCompatActivity() {
+   override fun onCreate(savedInstanceState: Bundle?) {
+       super.onCreate(savedInstanceState)
+       setContentView(R.layout.activity_main)
+
+//        var tv:TextView=findViewById(R.id.text_view)
+
+       var user_nm:EditText=findViewById(R.id.user_nm)
+       var user_ps:EditText=findViewById(R.id.user_ps)
+       var save_btn:Button=findViewById(R.id.save_btn)
+       var dis_btn:Button=findViewById(R.id.dis_btn)
+       var sp=application.getSharedPreferences("logindata",Context.MODE_PRIVATE)
+       var editor=sp.edit()
+
+       save_btn.setOnClickListener {
+           editor.putString("username",user_nm.text.toString())
+           editor.putString("password",user_ps.text.toString())
+           editor.commit()
+           Toast.makeText(applicationContext,"Data Saved",Toast.LENGTH_LONG).show()
+           user_nm.setText("")
+           user_ps.setText("")
+       }
+       dis_btn.setOnClickListener {
+           user_nm.setText(sp.getString("username",""))
+           user_ps.setText(sp.getString("password",""))
+       }
+   }
+} 
