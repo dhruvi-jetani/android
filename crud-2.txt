@@ -1,0 +1,263 @@
+================mainactivity.kt
+package com.example.all
+
+import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.database.Cursor
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ListView
+import android.widget.SearchView
+import android.widget.SimpleCursorAdapter
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
+class MainActivity : AppCompatActivity() {
+
+    lateinit var nm:EditText
+    lateinit var sm:EditText
+    lateinit var ins:Button
+    lateinit var del:Button
+    lateinit var upd:Button
+    lateinit var nxt:Button
+    lateinit var prv:Button
+    lateinit var shw:Button
+    lateinit var lst:ListView
+    lateinit var srch:SearchView
+    lateinit var rs:Cursor
+
+
+    @SuppressLint("MissingInflatedId")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        nm=findViewById(R.id.name)
+        sm=findViewById(R.id.semester)
+        ins=findViewById(R.id.insert)
+        del=findViewById(R.id.delete)
+        upd=findViewById(R.id.update)
+        nxt=findViewById(R.id.next)
+        prv=findViewById(R.id.previous)
+        lst=findViewById(R.id.lstview)
+        srch=findViewById(R.id.srch)
+        shw=findViewById(R.id.show)
+
+
+        var dbhelper=dbhelper(applicationContext)
+        var db = dbhelper.writableDatabase
+        Toast.makeText(applicationContext, "Database created", Toast.LENGTH_SHORT).show()
+        rs=db.rawQuery("SELECT SID _id,NAME,SEMESTER FROM STUDENT",null)
+
+
+        if(rs.moveToNext())
+        {
+            nm.setText(rs.getString(1))
+            sm.setText(rs.getString(2))
+        }
+
+
+        ins.setOnClickListener {
+            var cv = ContentValues()
+            cv.put("NAME",nm.text.toString())
+            cv.put("SEMESTER",sm.text.toString())
+            db.insert("STUDENT",null,cv)
+            rs=db.rawQuery("SELECT SID _id,NAME,SEMESTER FROM STUDENT",null)
+            Toast.makeText(applicationContext, "Data Inserted", Toast.LENGTH_SHORT).show()
+        }
+
+        upd.setOnClickListener {
+            var cv = ContentValues()
+            cv.put("NAME",nm.text.toString())
+            cv.put("SEMESTER",sm.text.toString())
+            db.update("STUDENT",cv,"SID = ?", arrayOf(rs.getString(0)))
+            rs=db.rawQuery("SELECT SID _id,NAME,SEMESTER FROM STUDENT",null)
+            Toast.makeText(applicationContext, "Data Updated", Toast.LENGTH_SHORT).show()
+        }
+
+        del.setOnClickListener {
+            var cv = ContentValues()
+            cv.put("NAME",nm.text.toString())
+            cv.put("SEMESTER",sm.text.toString())
+            db.delete("STUDENT","SID = ?", arrayOf(rs.getString(0)))
+            rs=db.rawQuery("SELECT SID _id,NAME,SEMESTER FROM STUDENT",null)
+            Toast.makeText(applicationContext, "Data Deleted", Toast.LENGTH_SHORT).show()
+        }
+
+
+        shw.setOnClickListener {
+            var adapter = SimpleCursorAdapter(applicationContext,android.R.layout.simple_expandable_list_item_2,rs,
+                arrayOf("NAME","SEMESTER"),
+                intArrayOf(android.R.id.text1,android.R.id.text2)
+            )
+            lst.adapter=adapter
+
+            rs=db.rawQuery("SELECT SID _id,NAME,SEMESTER FROM STUDENT",null)
+
+    srch.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        override fun onQueryTextSubmit(p0: String?): Boolean {
+            return false
+        }
+
+        override fun onQueryTextChange(p0: String?): Boolean {
+           rs=db.rawQuery("SELECT SID _id,NAME,SEMESTER FROM STUDENT WHERE NAME LIKE '${p0}' ",null)
+            adapter.changeCursor(rs)
+            return false
+        }
+
+    })
+
+
+        }
+
+
+        nxt.setOnClickListener {
+            if(rs.moveToNext())
+            {
+                nm.setText(rs.getString(1))
+                sm.setText(rs.getString(2))
+            }
+            else if(rs.moveToFirst())
+            {
+                nm.setText(rs.getString(1))
+                sm.setText(rs.getString(2))
+            }
+        }
+
+        prv.setOnClickListener {
+            if(rs.moveToPrevious())
+            {
+                nm.setText(rs.getString(1))
+                sm.setText(rs.getString(2))
+            }
+            else if(rs.moveToLast())
+            {
+                nm.setText(rs.getString(1))
+                sm.setText(rs.getString(2))
+            }
+        }
+
+    }
+}
+==============dbhelper.kt
+package com.example.all
+
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class dbhelper(context: Context):SQLiteOpenHelper(context,"DB",null,1) {
+    override fun onCreate(p0: SQLiteDatabase?) {
+
+        p0?.execSQL("CREATE TABLE STUDENT (SID INTEGER PRIMARY KEY AUTOINCREMENT,NAME TEXT,SEMESTER INTEGER)")
+
+    }
+
+    override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
+
+    }
+}
+====================activitymain.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CRUD OPERATION"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+       android:hint="Enter your name" />
+
+    <EditText
+        android:id="@+id/semester"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Enter your semester" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/insert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Insert" />
+
+        <Button
+            android:id="@+id/update"
+            android:layout_width="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_height="wrap_content"
+            android:text="Update" />
+
+        <Button
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Delete" />
+
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/next"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="next" />
+    <Button
+        android:id="@+id/previous"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="previous" />
+
+    <Button
+        android:id="@+id/show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show all" />
+
+    <SearchView
+        android:id="@+id/srch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ListView
+        android:id="@+id/lstview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
